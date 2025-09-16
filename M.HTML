@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Motos Incríveis</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Roboto', sans-serif; background:#8B0000; margin:0; padding:0; color:#fff; }
+  h1 { text-align:center; margin:20px 0; font-family: 'Montserrat', sans-serif; color:#fff; }
+  #top-bar { display:flex; justify-content:space-between; align-items:center; padding:10px 20px; flex-wrap:wrap; gap:10px; }
+  #searchInput { padding:8px 12px; border-radius:12px; border:2px solid #fff; flex:1; min-width:200px; background:#fff; color:#8B0000; font-weight:500; }
+  #tempDisplay { font-weight:500; color:#fff; min-width:120px; text-align:right; }
+  #controls { display:flex; justify-content:center; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+  select { padding:8px 12px; border-radius:8px; border:2px solid #fff; background:#fff; color:#8B0000; font-weight:500; }
+  #catalog { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; padding:0 20px 40px 20px; }
+  .card { background: #fff; padding:15px; border-radius:20px; width:260px; box-shadow:0 8px 20px rgba(0,0,0,0.4); text-align:center; position:relative; transition: transform 0.4s, box-shadow 0.4s; color:#8B0000; }
+  .card:hover { transform: translateY(-8px); box-shadow:0 12px 25px rgba(0,0,0,0.6); }
+  .card img { width:100%; border-radius:15px; cursor:pointer; transition: transform 0.3s; }
+  .card img:hover { transform: scale(1.05); }
+  .card h3 { margin:10px 0 5px 0; font-family: 'Montserrat', sans-serif; }
+  .card p { margin:5px 0; font-weight:500; }
+  .oferta { background:#ff4d4d; color:#fff; padding:4px 8px; border-radius:12px; font-weight:600; margin-bottom:5px; display:inline-block; }
+  .detalhesBtn, .compraBtn { margin:5px; padding:8px 14px; cursor:pointer; border:none; border-radius:12px; font-weight:500; background:#ff6666; color:#fff; transition: all 0.3s; }
+  .detalhesBtn:hover, .compraBtn:hover { background:#ff8080; }
+  .favorito { position:absolute; top:10px; right:10px; font-size:1.6rem; cursor:pointer; color:#ccc; transition: color 0.3s, transform 0.3s; }
+  .favorito.fav { color:#ffb3b3; transform: scale(1.2); }
+  .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; }
+  .modal-content { background:#fff; padding:25px; border-radius:20px; max-width:600px; width:90%; max-height:90%; overflow-y:auto; position:relative; box-shadow:0 12px 25px rgba(0,0,0,0.5); color:#8B0000; }
+  .modal img { max-width:100%; border-radius:15px; }
+  .close { position:absolute; top:10px; right:15px; font-size:2rem; cursor:pointer; color:#8B0000; transition: color 0.3s; }
+  .close:hover { color:#ff4d4d; }
+
+  /* Chat estilo WhatsApp */
+  #chat { position:fixed; bottom:70px; right:15px; background:#fff; width:320px; border-radius:20px; box-shadow:0 12px 25px rgba(0,0,0,0.5); display:flex; flex-direction:column; overflow:hidden; color:#8B0000; display:none; font-size:14px; }
+  #chat-header { background:#8B0000; color:#fff; padding:10px; font-weight:500; cursor:pointer; display:flex; justify-content:space-between; align-items:center; border-top-left-radius:20px; border-top-right-radius:20px; }
+  #chat-messages { padding:10px; height:220px; overflow-y:auto; background:#e6e6e6; display:flex; flex-direction:column; gap:8px; }
+  .message { padding:8px 12px; border-radius:20px; max-width:80%; word-wrap:break-word; }
+  .user-msg { background:#8B0000; color:#fff; align-self:flex-end; border-bottom-right-radius:0; }
+  .bot-msg { background:#fff; color:#8B0000; align-self:flex-start; border-bottom-left-radius:0; box-shadow:0 2px 5px rgba(0,0,0,0.2); }
+  #chat-input { display:flex; }
+  #chat-input input { flex:1; padding:10px; border:none; border-radius:0 0 0 12px; background:#fff; color:#8B0000; }
+  #chat-input button { padding:10px 14px; border:none; background:#ff4d4d; color:#fff; border-radius:0 0 12px 0; cursor:pointer; transition: all 0.3s; }
+  #chat-input button:hover { background:#ff6666; }
+  #chat-toggle { position:fixed; bottom:15px; right:15px; width:60px; height:60px; border-radius:50%; background:#fff; color:#8B0000; font-size:30px; display:flex; justify-content:center; align-items:center; box-shadow:0 8px 20px rgba(0,0,0,0.5); cursor:pointer; transition: all 0.3s; }
+  #chat-toggle:hover { transform: translateY(-3px); background:#ffe6e6; }
+
+  ::-webkit-scrollbar { width:8px; }
+  ::-webkit-scrollbar-track { background:#e6e6e6; border-radius:8px;}
+  ::-webkit-scrollbar-thumb { background:#8B0000; border-radius:8px;}
+</style>
+</head>
+<body>
+
+<h1>Catálogo de Motos Incríveis</h1>
+
+<div id="top-bar">
+  <input type="text" id="searchInput" placeholder="Pesquisar marca ou modelo...">
+  <div id="tempDisplay">☀️ 0°C</div>
+</div>
+
+<div id="controls">
+  <select id="filterMarca"><option value="Todas">Todas as marcas</option></select>
+  <select id="sortPreco">
+    <option value="none">Ordenar por preço</option>
+    <option value="asc">Menor para maior</option>
+    <option value="desc">Maior para menor</option>
+  </select>
+</div>
+
+<div id="catalog"></div>
+
+<!-- Modais -->
+<div class="modal" id="imgModal">
+  <div class="modal-content">
+    <span class="close" id="closeImgModal">&times;</span>
+    <img id="modalImg" src="" alt="Moto ampliada">
+  </div>
+</div>
+
+<div class="modal" id="detalhesModal">
+  <div class="modal-content">
+    <span class="close" id="closeDetalhes">&times;</span>
+    <div id="detalhesContent"></div>
+  </div>
+</div>
+
+<div class="modal" id="compraModal">
+  <div class="modal-content">
+    <span class="close" id="closeCompra">&times;</span>
+    <div id="compraContent"></div>
+  </div>
+</div>
+
+<!-- Chat Assistente -->
+<div id="chat">
+  <div id="chat-header">Assistente <span id="closeChat" style="cursor:pointer;">&#10005;</span></div>
+  <div id="chat-messages">
+    <div class="bot-msg">Olá! Posso te ajudar a escolher sua moto hoje? 🚀</div>
+  </div>
+  <div id="chat-input">
+    <input type="text" id="userMessage" placeholder="Escreva sua mensagem...">
+    <button id="sendMessage">Enviar</button>
+  </div>
+</div>
+
+<div id="chat-toggle">💬</div>
+
+<script>
+const motos = [
+  { id:1, marca:'Honda', modelo:'CB 500F', ano:2023, preco:34990, oferta:31990, img:'https://i0.statig.com.br/bancodeimagens/d8/p6/hn/d8p6hnxvywjfqp3w7sgkzxcp4.jpg', detalhes:"Motor 471cc, 47 cv, suspensão dianteira telescópica, freio ABS, tanque 17,1L, ótimo para cidade e estrada." },
+  { id:2, marca:'Honda', modelo:'CBR 650R', ano:2024, preco:57990, oferta:53990, img:'https://images.medialinksonline.com/imagestream/19131/6338271x1024x0_FFFFFF_L_.jpg', detalhes:"Motor 649cc, 95 cv, carenagem esportiva, freio ABS, painel digital, ideal para esportivas e estrada." },
+  { id:3, marca:'Yamaha', modelo:'MT-03', ano:2025, preco:33990, oferta:31990, img:'https://crmotos.com/wp-content/uploads/2021/05/yamaha-mt03-2022-2.jpg', detalhes:"Motor 321cc, 42 cv, naked esportiva, leve e ágil, freio ABS, tanque 14L, ótima para cidade." },
+  { id:4, marca:'Yamaha', modelo:'R3', ano:2024, preco:32990, oferta:null, img:'https://images5.1000ps.net/images_bikekat/2024/4-Yamaha/7961-YZF_R3/008-638354659130741641-yamaha-yzf-r3.jpg', detalhes:"Motor 321cc, 42 cv, esportiva leve, carenagem aerodinâmica, freios ABS, painel digital, tanque 14L." },
+  { id:5, marca:'Kawasaki', modelo:'Ninja 400', ano:2024, preco:38990, oferta:36990, img:'https://motonewsbrasil.com/wp-content/uploads/2023/02/2024-kawasaki-Ninja-ZX-4RR-studio-front-right.jpg', detalhes:"Motor 399cc, 47 cv, carenagem esportiva, freios ABS, painel digital, tanque 14L, perfeita para iniciantes e estrada." },
+  { id:6, marca:'Kawasaki', modelo:'Z900', ano:2022, preco:66990, oferta:62990, img:'https://motociclismoonline.com.br/wp-content/uploads/2021/09/z900se-2022-1.jpg', detalhes:"Motor 948cc, 125 cv, naked potente, suspensão ajustável, freios ABS, tanque 17L, ideal para estrada e performance." },
+  { id:7, marca:'BMW', modelo:'G 310 R', ano:2023, preco:38900, oferta:35900, img:'https://motonewsbrasil.com/wp-content/uploads/2022/07/bmw-g-310-r-2023-Style-Passion-Racing-red-frontal-direita.jpg', detalhes:"Motor 313cc, 34 cv, naked leve, freio ABS, painel digital, tanque 11L, perfeita para cidade." },
+  { id:8, marca:'BMW', modelo:'S 1000 RR', ano:2021, preco:119900, oferta:114900, img:'https://portallubes.com.br/wp-content/uploads/2021/02/BMW-S-1000-RR-2021-1.jpg', detalhes:"Motor 999cc, 205 cv, superbike, carenagem completa, freios ABS, controle de tração, painel digital TFT, tanque 16,5L, para velocidade máxima." },
+  { id:9, marca:'Ducati', modelo:'Monster+', ano:2024, preco:94900, oferta:null, img:'https://cdpcdn.dx1app.com/products/USA/DU/2024/MC/SPORT/MONSTER_30TH_ANNIVERSARIO/50/TBD/2000000001.jpg', detalhes:"Motor 937cc, 111 cv, naked italiana, freios ABS, suspensão premium, tanque 16L, estilo único e performance urbana/estrada." },
+  { id:10, marca:'Ducati', modelo:'Panigale V2', ano:2022, preco:114900, oferta:109900, img:'https://images5.1000ps.net/images_bikekat/2025/5-Ducati/9917-Panigale_V2/001-638666497849750500-ducati-panigale-v2.jpg', detalhes:"Motor 955cc, 155 cv, superbike esportiva, carenagem aerodinâmica, freios ABS, painel TFT, tanque 16L, ideal para pista e estrada." },
+];
+
+const catalog = document.getElementById('catalog');
+const filterMarca = document.getElementById('filterMarca');
+const sortPreco = document.getElementById('sortPreco');
+const searchInput = document.getElementById('searchInput');
+let favoritos = [];
+
+// Preencher filtro marcas
+[...new Set(motos.map(m => m.marca))].forEach(m => {
+  const opt = document.createElement('option'); opt.value = m; opt.textContent = m;
+  filterMarca.appendChild(opt);
+});
+
+// Render catálogo
+function renderCatalog(list) {
+  catalog.innerHTML = '';
+  list.forEach(moto => {
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `
+      ${moto.oferta?`<div class="oferta">Oferta: R$ ${moto.oferta}</div>`:''}
+      <span class="favorito ${favoritos.includes(moto.id)?'fav':''}">&#10084;</span>
+      <img src="${moto.img}" alt="${moto.modelo}" class="card-img">
+      <h3>${moto.marca} ${moto.modelo}</h3>
+      <p>${moto.ano} - R$ ${moto.preco}</p>
+      <button class="detalhesBtn">Detalhes</button>
+      <button class="compraBtn">Quero esta</button>
+    `;
+    catalog.appendChild(card);
+
+    card.querySelector('.favorito').addEventListener('click', () => {
+      if(favoritos.includes(moto.id)) favoritos = favoritos.filter(f => f!==moto.id); 
+      else favoritos.push(moto.id);
+      renderCatalog(list);
+    });
+
+    card.querySelector('img').addEventListener('click', ()=> openModal('imgModal', moto.img));
+
+    card.querySelector('.detalhesBtn').addEventListener('click', ()=> {
+      document.getElementById('detalhesContent').innerHTML=`
+        <h2>${moto.marca} ${moto.modelo}</h2>
+        <p><b>Ano:</b> ${moto.ano}</p>
+        <p><b>Preço:</b> R$ ${moto.preco}</p>
+        <p><b>Oferta:</b> ${moto.oferta??'Sem oferta'}</p>
+        <p><b>Detalhes:</b> ${moto.detalhes}</p>
+        <img src="${moto.img}" alt="${moto.modelo}">
+      `;
+      openModal('detalhesModal');
+    });
+
+    card.querySelector('.compraBtn').addEventListener('click', ()=> {
+      const preco = moto.oferta ?? moto.preco;
+      const parcelas = 12;
+      const valorParcela = (preco / parcelas).toFixed(2);
+      document.getElementById('compraContent').innerHTML=`
+        <h2>Compra - ${moto.marca} ${moto.modelo}</h2>
+        <p>Preço: R$ ${preco}</p>
+        <p>Parcelas: ${parcelas}x de R$ ${valorParcela}</p>
+        <p>Retire em nossas lojas: SP, RJ, MG</p>
+        <a href="https://www.exemplo.com/compra-em-processo" target="_blank">
+          <button>Ir para compra</button>
+        </a>
+      `;
+      openModal('compraModal');
+    });
+  });
+}
+
+// Abrir modal
+function openModal(modalId, imgSrc=null){
+  const modal = document.getElementById(modalId);
+  if(imgSrc) document.getElementById('modalImg').src = imgSrc;
+  modal.style.display = 'flex';
+}
+
+// Fechar modais
+document.querySelectorAll('.close').forEach(btn=>{
+  btn.addEventListener('click', e=> e.target.closest('.modal').style.display='none');
+});
+document.querySelectorAll('.modal').forEach(modal=>{
+  modal.addEventListener('click', e=>{ if(e.target === modal) modal.style.display='none'; });
+});
+
+// Inicial render
+renderCatalog(motos);
+
+// Filtros e pesquisa
+function updateCatalog() {
+  let list = [...motos];
+  const marca = filterMarca.value;
+  if(marca!=='Todas') list = list.filter(m=>m.marca===marca);
+  const sort = sortPreco.value;
+  if(sort==='asc') list.sort((a,b)=>(a.oferta??a.preco)-(b.oferta??b.preco));
+  if(sort==='desc') list.sort((a,b)=>(b.oferta??b.preco)-(a.oferta??a.preco));
+  const search = searchInput.value.toLowerCase();
+  if(search) list = list.filter(m=>m.marca.toLowerCase().includes(search)||m.modelo.toLowerCase().includes(search));
+  renderCatalog(list);
+}
+filterMarca.addEventListener('change', updateCatalog);
+sortPreco.addEventListener('change', updateCatalog);
+searchInput.addEventListener('input', updateCatalog);
+
+// Chat Assistente
+const chat = document.getElementById('chat');
+document.getElementById('chat-toggle').addEventListener('click', ()=> chat.style.display='flex');
+document.getElementById('closeChat').addEventListener('click', ()=> chat.style.display='none');
+
+function sendMessage(){
+  const input = document.getElementById('userMessage'); 
+  if(input.value.trim()==='') return;
+  const chatMessages = document.getElementById('chat-messages');
+
+  const userDiv = document.createElement('div');
+  userDiv.className='message user-msg';
+  userDiv.textContent = input.value;
+  chatMessages.appendChild(userDiv);
+
+  input.value='';
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+
+  setTimeout(()=>{
+    const respDiv = document.createElement('div');
+    respDiv.className='message bot-msg';
+    const text = userDiv.textContent.toLowerCase();
+    const modelo = motos.find(m=>text.includes(m.modelo.toLowerCase()));
+    const marca = motos.find(m=>text.includes(m.marca.toLowerCase()));
+    if(modelo) respDiv.textContent=`Ótima escolha! A ${modelo.marca} ${modelo.modelo} é potente e elegante. Quer ver detalhes ou comprar? 😉`;
+    else if(marca) respDiv.textContent=`A marca ${marca.marca} é top! Temos várias motos dessa marca. Quer que eu mostre?`;
+    else {
+      const respostas=["Essa moto é incrível! Quer ver os detalhes ou ofertas?","Temos várias cores e opções de parcelamento. Quer que eu mostre?","Essa moto é perfeita para estrada ou cidade. Posso te enviar mais informações?"];
+      respDiv.textContent = respostas[Math.floor(Math.random()*respostas.length)];
+    }
+    chatMessages.appendChild(respDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  },800);
+}
+document.getElementById('sendMessage').addEventListener('click', sendMessage);
+document.getElementById('userMessage').addEventListener('keypress', e=>{ if(e.key==='Enter') sendMessage(); });
+
+// Temperatura em Jundiaí
+const apiKey = 'SUA_API_KEY_AQUI'; // Substitua com sua chave OpenWeatherMap
+async function getTemp() {
+  try{
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Jundiaí,BR&units=metric&lang=pt_br&appid=${apiKey}`);
+    const data = await res.json();
+    document.getElementById('tempDisplay').textContent = `🌡️ ${Math.round(data.main.temp)}°C`;
+  } catch(e){
+    document.getElementById('tempDisplay').textContent = `🌡️ 24
+    °C`;
+  }
+}
+getTemp();
+setInterval(getTemp,60000);
+</script>
+</body>
+</html>

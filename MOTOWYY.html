@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RedTorque Motos | Catálogo</title>
+  <style>
+    :root{
+      --bg:#6b0000;           /* vermelho escuro */
+      --bg-2:#7e0000;
+      --bg-3:#8f0000;
+      --card:#9a0000;
+      --accent:#ff3b3b;
+      --text:#ffffff;
+      --muted:#ffd6d6;
+      --shadow: 0 10px 25px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 20% -10%, #b30000 0%, transparent 40%),
+        radial-gradient(900px 600px at 120% 10%, #a80000 0%, transparent 45%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+    }
+
+    /* Header */
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: saturate(1.1) blur(8px);
+      background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.12));
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .nav{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 24px; max-width:1200px; margin:0 auto}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .brand .logo{
+      width:40px; height:40px; border-radius:12px;
+      background: conic-gradient(from 210deg, #ff5a5a, #b30000, #ff5a5a);
+      box-shadow: inset 0 0 12px rgba(0,0,0,.35), var(--shadow);
+    }
+    .brand h1{font-size:1.25rem; margin:0; letter-spacing:.5px}
+
+    .searchbar{display:flex; align-items:center; gap:10px; flex:1; max-width:520px}
+    .searchbar input{
+      width:100%; padding:12px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.25); color:var(--text); outline:none;
+    }
+    .searchbar input::placeholder{color:rgba(255,255,255,.65)}
+
+    .controls{display:flex; align-items:center; gap:12px}
+    select, button.filter{
+      padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.25); color:var(--text); outline:none;
+    }
+
+    /* Weather pill (top-right) */
+    .weather{
+      position:fixed; right:18px; top:12px; z-index:60;
+      display:flex; align-items:center; gap:10px;
+      background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.16);
+      padding:10px 14px; border-radius:999px; box-shadow:var(--shadow);
+      font-weight:600; letter-spacing:.3px;
+    }
+    .weather .icon{width:22px; height:22px}
+    .weather small{opacity:.85}
+
+    /* Hero */
+    .hero{max-width:1200px; margin:28px auto 10px; padding:0 24px}
+    .tag{display:inline-block; font-size:.85rem; color:var(--muted); background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.12); padding:8px 12px; border-radius:999px}
+    .hero h2{margin:14px 0 8px; font-size:2.2rem}
+    .hero p{margin:0; color:var(--muted)}
+
+    /* Catalog grid */
+    .grid{max-width:1200px; margin:24px auto 80px; padding:0 24px; display:grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap:18px}
+
+    .card{
+      position:relative; border-radius: var(--radius); overflow:hidden; background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.1));
+      border:1px solid rgba(255,255,255,.12); box-shadow: var(--shadow);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .card:hover{ transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,.5) }
+
+    .thumb{
+      height:150px; background: linear-gradient(135deg, #b00000, #6b0000);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:900; font-size:1.8rem; letter-spacing:1px; opacity:.9
+    }
+    .thumb span{filter: drop-shadow(0 6px 14px rgba(0,0,0,.5))}
+
+    .content{padding:14px}
+    .title{display:flex; align-items:center; justify-content:space-between; gap:8px}
+    .title h3{margin:0; font-size:1.05rem}
+    .badge{font-size:.75rem; padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.18); background:rgba(0,0,0,.25); color:var(--muted)}
+
+    .meta{display:flex; gap:10px; margin:10px 0; opacity:.9; font-size:.95rem}
+    .price{display:flex; align-items:baseline; gap:8px}
+    .price .main{font-size:1.15rem; font-weight:800}
+    .price .old{opacity:.6; text-decoration: line-through}
+
+    .actions{display:flex; gap:8px; margin-top:12px}
+    .btn{
+      flex:1; text-align:center; cursor:pointer; border:none; padding:10px 12px; border-radius:12px; font-weight:700; letter-spacing:.3px;
+      background: linear-gradient(180deg, #ff4a4a, #c20000);
+      color:#fff; box-shadow: var(--shadow);
+    }
+    .btn.ghost{background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.16)}
+
+    /* Floating chat assistant */
+    .chat-toggle{
+      position:fixed; right:16px; bottom:16px; z-index:70;
+      width:62px; height:62px; border-radius:50%; border:none; cursor:pointer;
+      background: radial-gradient(circle at 30% 30%, #ff6b6b, #a80000);
+      color:#fff; font-weight:900; font-size:24px; box-shadow: var(--shadow);
+    }
+    .chat{
+      position:fixed; right:16px; bottom:86px; z-index:70;
+      width:320px; max-height:65vh; display:none; flex-direction:column;
+      background: rgba(0,0,0,.7); border:1px solid rgba(255,255,255,.15);
+      border-radius:20px; overflow:hidden; box-shadow: var(--shadow);
+      backdrop-filter: blur(10px) saturate(1.2);
+    }
+    .chat header{position:sticky; top:0; background:rgba(0,0,0,.3); padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.12)}
+    .chat header h4{margin:0; font-size:1rem}
+    .chat .log{padding:12px; overflow:auto; display:flex; flex-direction:column; gap:10px}
+    .msg{padding:10px 12px; border-radius:14px; max-width:85%}
+    .msg.bot{background:rgba(255,255,255,.1)}
+    .msg.user{background:linear-gradient(180deg, #ff4a4a, #c20000); align-self:flex-end}
+    .chat .composer{display:flex; gap:8px; padding:12px; border-top:1px solid rgba(255,255,255,.12)}
+    .chat .composer input{flex:1; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.16); background:rgba(0,0,0,.35); color:#fff}
+    .chat .composer button{padding:10px 12px; border-radius:12px; border:none; background:linear-gradient(180deg, #ff4a4a, #c20000); color:#fff; font-weight:700}
+
+    /* Footer */
+    footer{border-top:1px solid rgba(255,255,255,.12); padding:24px; text-align:center; color:var(--muted); background:rgba(0,0,0,.25)}
+
+    @media (max-width:700px){
+      .controls{display:none}
+      .searchbar{max-width:none}
+      .hero h2{font-size:1.6rem}
+    }
+  </style>
+</head>
+<body>
+  <!-- Weather pill (tempo real em Jundiaí) -->
+  <div class="weather" aria-live="polite" title="Clima agora em Jundiaí">
+    <img class="icon" alt="Condição do tempo" />
+    <div>
+      <div><strong id="temp-now">--°C</strong></div>
+      <small>Jundiaí • agora</small>
+    </div>
+  </div>
+
+  <header>
+    <nav class="nav" aria-label="principal">
+      <a class="brand" href="#" aria-label="RedTorque Motos">
+        <div class="logo" aria-hidden="true"></div>
+        <h1>RedTorque Motos</h1>
+      </a>
+      <div class="searchbar" role="search">
+        <input id="q" type="search" placeholder="Buscar por modelo, marca, ano…" aria-label="Buscar" />
+      </div>
+      <div class="controls">
+        <select id="sort" aria-label="Ordenar">
+          <option value="relevance">Ordenar: Relevância</option>
+          <option value="price-asc">Preço: menor → maior</option>
+          <option value="price-desc">Preço: maior → menor</option>
+          <option value="year-desc">Ano: mais novo → antigo</option>
+          <option value="year-asc">Ano: antigo → novo</option>
+        </select>
+      </div>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <span class="tag">Ofertas da Semana</span>
+    <h2>Catálogo potente, estilo agressivo.</h2>
+    <p>Escolha sua próxima máquina: 15 opções com ficha, preço e condições especiais.</p>
+  </section>
+
+  <main class="grid" id="grid" aria-live="polite"></main>
+
+  <footer>
+    ©️ <span id="year"></span> RedTorque Motos • Imagens ilustrativas. Preços sujeitos a alteração sem aviso prévio.
+  </footer>
+
+  <!-- Assistente flutuante -->
+  <button class="chat-toggle" id="chatToggle" aria-label="Abrir assistente">💬</button>
+  <div class="chat" id="chat" role="dialog" aria-modal="false" aria-label="Assistente RedTorque">
+    <header><h4>Assistente RedTorque</h4></header>
+    <div class="log" id="log"></div>
+    <div class="composer">
+      <input id="input" placeholder="Digite sua dúvida…" />
+      <button id="send">Enviar</button>
+    </div>
+  </div>
+  
+  <script>
+    // ===== Dados do Catálogo (15 motos) =====
+    const motos = [
+      { id:1, marca:'Honda',   modelo:'CB 500F',        ano:2023, preco:34990, oferta:31990 },
+      { id:2, marca:'Honda',   modelo:'CBR 650R',      ano:2024, preco:57990, oferta:53990 },
+      { id:3, marca:'Yamaha',  modelo:'MT-03',         ano:2023, preco:29990, oferta:27990 },
+      { id:4, marca:'Yamaha',  modelo:'R3',            ano:2024, preco:32990, oferta:null   },
+      { id:5, marca:'Kawasaki',modelo:'Ninja 400',     ano:2024, preco:38990, oferta:36990 },
+      { id:6, marca:'Kawasaki',modelo:'Z900',          ano:2022, preco:66990, oferta:62990 },
+      { id:7, marca:'BMW',     modelo:'G 310 R',       ano:2023, preco:38900, oferta:35900 },
+      { id:8, marca:'BMW',     modelo:'S 1000 RR',     ano:2021, preco:119900,oferta:114900},
+      { id:9, marca:'Ducati',  modelo:'Monster+',      ano:2024, preco:94900, oferta:null   },
+      { id:10,marca:'Ducati',  modelo:'Panigale V2',   ano:2022, preco:114900,oferta:109900},
+      { id:11,marca:'Triumph', modelo:'Trident 660',   ano:2023, preco:48990, oferta:46990 },
+      { id:12,marca:'Triumph', modelo:'Tiger 900',     ano:2022, preco:72990, oferta:69990 },
+      { id:13,marca:'Suzuki',  modelo:'GSX-S750',      ano:2021, preco:52990, oferta:49990 },
+      { id:14,marca:'Royal Enfield',modelo:'Interceptor 650', ano:2024, preco:35990, oferta:33990 },
+      { id:15,marca:'Harley-Davidson',modelo:'Iron 883', ano:2020, preco:58990, oferta:54990 },
+    ];
+
+    // ===== Utilidades =====
+    const fmtBRL = v => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+
+    function createCard(item){
+      const el = document.createElement('article');
+      el.className = 'card';
+      el.innerHTML = `
+        <div class="thumb" aria-hidden="true"><span>${item.marca.split(' ')[0]}</span></div>
+        <div class="content">
+          <div class="title">
+            <h3>${item.marca} ${item.modelo}</h3>
+            <span class="badge">${item.ano}</span>
+          </div>
+          <div class="meta">
+            <span>Modelo: <strong>${item.modelo}</strong></span>
+          </div>
+          <div class="price">
+            ${item.oferta ? `<span class="old">${fmtBRL(item.preco)}</span>` : ''}
+            <span class="main">${fmtBRL(item.oferta ?? item.preco)}</span>
+          </div>
+          <div class="actions">
+            <button class="btn" aria-label="Ver oferta">Quero esta</button>
+            <button class="btn ghost" aria-label="Detalhes">Detalhes</button>
+          </div>
+        </div>`;
+      return el;
+    }
+
+    function render(list){
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      list.forEach(item => grid.appendChild(createCard(item)));
+    }
+
+    function apply(){
+      const q = document.getElementById('q').value.trim().toLowerCase();
+      const sort = document.getElementById('sort').value;
+      let filtered = motos.filter(m => (
+        m.marca.toLowerCase().includes(q) ||
+        m.modelo.toLowerCase().includes(q) ||
+        String(m.ano).includes(q)
+      ));
+      switch(sort){
+        case 'price-asc':  filtered.sort((a,b)=> (a.oferta??a.preco) - (b.oferta??b.preco)); break;
+        case 'price-desc': filtered.sort((a,b)=> (b.oferta??b.preco) - (a.oferta??a.preco)); break;
+        case 'year-asc':   filtered.sort((a,b)=> a.ano - b.ano); break;
+        case 'year-desc':  filtered.sort((a,b)=> b.ano - a.ano); break;
+        default: /* relevance */ break;
+      }
+      render(filtered);
+    }
+
+    // Eventos de filtro
+    document.getElementById('q').addEventListener('input', apply);
+    document.getElementById('sort').addEventListener('change', apply);
+
+    // Inicializa
+    render(motos);
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ===== Clima em tempo real (Open-Meteo) =====
+    async function loadWeather(){
+      try{
+        // Coordenadas de Jundiaí, SP
+        const lat = -23.1864, lon = -46.8842;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=America%2FSao_Paulo`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const temp = Math.round(data.current_weather.temperature);
+        const code = Number(data.current_weather.weathercode);
+        const iconUrl = weatherIcon(code);
+        document.getElementById('temp-now').textContent = `${temp}°C`;
+        document.querySelector('.weather .icon').src = iconUrl;
+      }catch(e){
+        document.getElementById('temp-now').textContent = '—°C';
+      }
+    }
+
+    function weatherIcon(code){
+      // Mapeamento simples WMO → emoji SVG embutido (data URI) para evitar dependência externa
+      const map = {
+        0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️', 45:'🌫️', 48:'🌫️', 51:'🌦️', 53:'🌦️', 55:'🌧️',
+        61:'🌧️', 63:'🌧️', 65:'🌧️', 71:'🌨️', 73:'🌨️', 75:'❄️', 80:'🌧️', 81:'🌧️', 82:'⛈️', 95:'⛈️', 96:'⛈️', 99:'⛈️'
+      };
+      const emoji = map[code] || '🌡️';
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><text x='0' y='16' font-size='16'>${emoji}</text></svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+
+    loadWeather();
+    // Atualiza a cada 10 min
+    setInterval(loadWeather, 10*60*1000);
+
+    // ===== Assistente simples =====
+    const chat = document.getElementById('chat');
+    const log = document.getElementById('log');
+    const input = document.getElementById('input');
+
+    function pushMsg(text, who='bot'){
+      const m = document.createElement('div');
+      m.className = 'msg ' + who;
+      m.textContent = text;
+      log.appendChild(m);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function botReply(q){
+      const t = q.toLowerCase();
+      if(t.includes('preço')||t.includes('valor')) return 'Para valores atualizados e condições, selecione a moto no catálogo e clique em "Quero esta". Posso simular um desconto à vista também!';
+      if(t.includes('financi')||t.includes('parcel')) return 'Trabalhamos com entrada a partir de 20% e parcelas em até 48x (sujeito à análise). Quer simular?';
+      if(t.includes('entrega')||t.includes('prazo')) return 'Entrega em até 7 dias úteis para estoque local. Para encomendas, consulte o prazo na página do modelo.';
+      if(t.includes('test')||t.includes('ride')||t.includes('teste')) return 'Agendamos test-ride aos sábados das 9h às 13h. Envie o modelo desejado e seu nome completo.';
+      return 'Sou o assistente da RedTorque. Posso ajudar com preços, financiamento, prazos e test-ride. O que você procura?';
+    }
+
+    document.getElementById('chatToggle').addEventListener('click', ()=>{
+      const open = chat.style.display !== 'flex';
+      chat.style.display = open ? 'flex' : 'none';
+      if(open && !log.children.length){
+        pushMsg('Olá! 👋 Precisa de ajuda para escolher sua moto?');
+      }
+    });
+
+    document.getElementById('send').addEventListener('click', send);
+    input.addEventListener('keydown', e=>{ if(e.key==='Enter') send(); });
+
+    function send(){
+      const text = input.value.trim();
+      if(!text) return;
+      pushMsg(text,'user');
+      input.value='';
+      setTimeout(()=> pushMsg(botReply(text),'bot'), 300);
+    }
+  </script>
+</body>
+</html>
