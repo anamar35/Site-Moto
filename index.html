@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Motos Incríveis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Catálogo de Motos Incríveis</h1>
+
+<div id="top-bar">
+  <input type="text" id="searchInput" placeholder="Pesquisar marca ou modelo...">
+  <div id="tempDisplay">☀️ 0°C</div>
+</div>
+
+<div id="controls">
+  <select id="filterMarca"><option value="Todas">Todas as marcas</option></select>
+  <select id="sortPreco">
+    <option value="none">Ordenar por preço</option>
+    <option value="asc">Menor para maior</option>
+    <option value="desc">Maior para menor</option>
+  </select>
+</div>
+
+<div id="catalog"></div>
+
+<!-- Modais -->
+<div class="modal" id="imgModal">
+  <div class="modal-content">
+    <span class="close" id="closeImgModal">&times;</span>
+    <img id="modalImg" src="" alt="Moto ampliada">
+  </div>
+</div>
+
+<div class="modal" id="detalhesModal">
+  <div class="modal-content">
+    <span class="close" id="closeDetalhes">&times;</span>
+    <div id="detalhesContent"></div>
+  </div>
+</div>
+
+<div class="modal" id="compraModal">
+  <div class="modal-content">
+    <span class="close" id="closeCompra">&times;</span>
+    <div id="compraContent"></div>
+  </div>
+</div>
+
+<!-- Chat Assistente -->
+<div id="chat">
+  <div id="chat-header">Assistente <span id="closeChat" style="cursor:pointer;">&#10005;</span></div>
+  <div id="chat-messages">
+    <div class="bot-msg">Olá! Posso te ajudar a escolher sua moto hoje? 🚀</div>
+  </div>
+  <div id="chat-input">
+    <input type="text" id="userMessage" placeholder="Escreva sua mensagem...">
+    <button id="sendMessage">Enviar</button>
+  </div>
+</div>
+
+<div id="chat-toggle">💬</div>
+
+<script src="script.js"></script>
+</body>
+</html>
