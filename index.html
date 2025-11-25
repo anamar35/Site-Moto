@@ -9,7 +9,11 @@
 </head>
 <body>
 
-<h1>Catálogo de Motos Incríveis</h1>
+<header>
+  <h1>Catálogo de Motos Incríveis</h1>
+  <button id="loginBtn">Login</button>
+  <span id="userStatus"></span>
+</header>
 
 <div id="top-bar">
   <input type="text" id="searchInput" placeholder="Pesquisar marca ou modelo...">
@@ -27,7 +31,26 @@
 
 <div id="catalog"></div>
 
-<!-- Modais -->
+<!-- Modal de Login -->
+<div class="modal" id="loginModal">
+  <div class="modal-content">
+    <span class="close" id="closeLogin">&times;</span>
+    <h2>Entrar</h2>
+
+    <label>Email (Gmail)</label>
+    <input type="email" id="loginEmail" placeholder="exemplo@gmail.com">
+
+    <label>Número de Telefone</label>
+    <input type="tel" id="loginPhone" placeholder="(xx) xxxxx-xxxx">
+
+    <label>Senha</label>
+    <input type="password" id="loginPassword" placeholder="••••••••">
+
+    <button id="loginSubmit">Criar perfil / Entrar</button>
+  </div>
+</div>
+
+<!-- Modal Imagem -->
 <div class="modal" id="imgModal">
   <div class="modal-content">
     <span class="close" id="closeImgModal">&times;</span>
@@ -35,6 +58,7 @@
   </div>
 </div>
 
+<!-- Modal Detalhes -->
 <div class="modal" id="detalhesModal">
   <div class="modal-content">
     <span class="close" id="closeDetalhes">&times;</span>
@@ -42,26 +66,13 @@
   </div>
 </div>
 
+<!-- Modal Compra -->
 <div class="modal" id="compraModal">
   <div class="modal-content">
     <span class="close" id="closeCompra">&times;</span>
     <div id="compraContent"></div>
   </div>
 </div>
-
-<!-- Chat Assistente -->
-<div id="chat">
-  <div id="chat-header">Assistente <span id="closeChat" style="cursor:pointer;">&#10005;</span></div>
-  <div id="chat-messages">
-    <div class="bot-msg">Olá! Posso te ajudar a escolher sua moto hoje? 🚀</div>
-  </div>
-  <div id="chat-input">
-    <input type="text" id="userMessage" placeholder="Escreva sua mensagem...">
-    <button id="sendMessage">Enviar</button>
-  </div>
-</div>
-
-<div id="chat-toggle">💬</div>
 
 <script src="script.js"></script>
 </body>
