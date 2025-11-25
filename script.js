@@ -1,107 +1,111 @@
-body {
-  font-family: 'Montserrat', sans-serif;
-  margin: 0;
-  background: #f4f4f4;
+// ----------------- LOGIN -----------------
+const loginBtn = document.getElementById("loginBtn");
+const loginModal = document.getElementById("loginModal");
+const closeLogin = document.getElementById("closeLogin");
+const loginSubmit = document.getElementById("loginSubmit");
+const userStatus = document.getElementById("userStatus");
+
+loginBtn.onclick = () => {
+  loginModal.style.display = "flex";
+};
+
+closeLogin.onclick = () => {
+  loginModal.style.display = "none";
+};
+
+loginSubmit.onclick = () => {
+  const email = document.getElementById("loginEmail").value;
+  const phone = document.getElementById("loginPhone").value;
+  const pass = document.getElementById("loginPassword").value;
+
+  if (!email || !email.includes("@gmail.com")) {
+    alert("Use um Gmail válido.");
+    return;
+  }
+  if (!phone || phone.length < 8) {
+    alert("Insira um número de telefone válido.");
+    return;
+  }
+  if (!pass || pass.length < 4) {
+    alert("Senha muito curta.");
+    return;
+  }
+
+  const user = { email, phone };
+  localStorage.setItem("userMoto", JSON.stringify(user));
+
+  userStatus.innerText = "Logado como: " + email;
+  loginModal.style.display = "none";
+};
+
+// Checar login ao carregar
+window.onload = () => {
+  const u = localStorage.getItem("userMoto");
+  if (u) {
+    const user = JSON.parse(u);
+    userStatus.innerText = "Logado como: " + user.email;
+  }
+};
+
+
+// ----------------- CATÁLOGO DE MOTOS (exemplo simples) -----------------
+
+const motos = [
+  { marca: "Honda", modelo: "CB 500F", preco: 32000, img: "https://i.ibb.co/3FmVQpC/moto1.jpg" },
+  { marca: "Yamaha", modelo: "MT-03", preco: 28000, img: "https://i.ibb.co/cc3vh6V/moto2.jpg" },
+  { marca: "BMW", modelo: "G 310R", preco: 35000, img: "https://i.ibb.co/NTfT9Bj/moto3.jpg" }
+];
+
+const catalog = document.getElementById("catalog");
+const filterMarca = document.getElementById("filterMarca");
+const sortPreco = document.getElementById("sortPreco");
+const searchInput = document.getElementById("searchInput");
+
+// Preencher marcas
+let marcas = [...new Set(motos.map(m => m.marca))];
+marcas.forEach(m => {
+  const op = document.createElement("option");
+  op.value = m;
+  op.innerText = m;
+  filterMarca.appendChild(op);
+});
+
+// Renderizar catálogo
+function renderMotos() {
+  catalog.innerHTML = "";
+
+  let lista = [...motos];
+
+  // Filtro marca
+  if (filterMarca.value !== "Todas") {
+    lista = lista.filter(m => m.marca === filterMarca.value);
+  }
+
+  // Busca
+  const termo = searchInput.value.toLowerCase();
+  lista = lista.filter(m =>
+    m.marca.toLowerCase().includes(termo) ||
+    m.modelo.toLowerCase().includes(termo)
+  );
+
+  // Ordenar preço
+  if (sortPreco.value === "asc") lista.sort((a,b)=>a.preco - b.preco);
+  if (sortPreco.value === "desc") lista.sort((a,b)=>b.preco - a.preco);
+
+  lista.forEach(moto => {
+    const card = document.createElement("div");
+    card.classList.add("card");
+    card.innerHTML = `
+      <img src="${moto.img}">
+      <h3>${moto.marca} ${moto.modelo}</h3>
+      <p>Preço: R$ ${moto.preco}</p>
+    `;
+    catalog.appendChild(card);
+  });
 }
 
-header {
-  background: #222;
-  color: #fff;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+searchInput.oninput = renderMotos;
+filterMarca.onchange = renderMotos;
+sortPreco.onchange = renderMotos;
 
-header button {
-  padding: 8px 16px;
-  background: #ff4747;
-  border: none;
-  color: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-#userStatus {
-  margin-left: 10px;
-  font-weight: bold;
-  color: #9df59d;
-}
-
-#top-bar {
-  margin: 20px;
-  display: flex;
-  gap: 20px;
-}
-
-#controls {
-  margin: 20px;
-  display: flex;
-  gap: 15px;
-}
-
-#catalog {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  padding: 20px;
-  gap: 20px;
-}
-
-.card {
-  background: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-  text-align: center;
-  cursor: pointer;
-}
-
-.card img {
-  width: 100%;
-  border-radius: 6px;
-}
-
-/* Modais */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: #fff;
-  padding: 25px;
-  width: 90%;
-  max-width: 400px;
-  border-radius: 10px;
-}
-
-.close {
-  float: right;
-  cursor: pointer;
-  font-size: 24px;
-}
-
-/* Login fields */
-.modal-content input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 6px;
-  margin-bottom: 15px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.modal-content button {
-  width: 100%;
-  padding: 10px;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
+renderMotos();
